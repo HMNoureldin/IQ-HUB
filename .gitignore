@@ -31,6 +31,9 @@
 *.out
 *.app
 
+# Add .vscode files
+.vscode/
+
 # build directories
 /build/
 /build-arm/

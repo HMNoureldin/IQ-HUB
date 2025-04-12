@@ -4,6 +4,8 @@
 #include <thread>
 
 
+#include "Logger.hpp"
+
 std::atomic<bool> running = true;
 
 
@@ -15,7 +17,7 @@ static void catchExitSignals() {
     /* Catch signals SIGINT and SIGTERM */
     if (signal(SIGINT, sigHandler) == SIG_ERR || 
         signal(SIGTERM, sigHandler) == SIG_ERR) {
-      std::cout << "ERROR : Failed to set up signal handler for SIGINT or SIGTERM" << std::endl;
+      LOG_ERROR << "Failed to set up signal handler for SIGINT or SIGTERM" << std::endl;
       exit(EXIT_FAILURE);
     }
   }
@@ -23,14 +25,15 @@ static void catchExitSignals() {
 int main()
 {
     catchExitSignals();
-    std::cout<< "Starting KVPStorage App.." << std::endl;
+
+    LOG_INFO << "Starting KVPStorage App.." << std::endl;
 
     while (running) {
         // Simulate some work or wait
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    std::cout<< "KVPStorage App stopped" << std::endl;
+    LOG_INFO << "KVPStorage App stopped" << std::endl;
 
     return 0;
 }
