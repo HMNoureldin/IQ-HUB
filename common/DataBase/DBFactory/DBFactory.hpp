@@ -13,6 +13,18 @@ enum class DatabaseType {
     NOSQL
 };
 
+
+const auto databaseTypeToString = [](DatabaseType type) -> std::string {
+    switch (type) {
+        case DatabaseType::SQLITE:
+            return "SQLITE";
+        case DatabaseType::NOSQL:
+            return "NOSQL";
+        default:
+            return "UNKNOWN";
+    }
+};
+
 class DBFactory {
     public:
         static std::unique_ptr<IDatabase> createDatabase(

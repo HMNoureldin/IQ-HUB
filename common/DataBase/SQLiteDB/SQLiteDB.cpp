@@ -61,3 +61,8 @@ int SQLiteDB::callback(void* data, int argc, char** argv, char** azColName) {
 std::string SQLiteDB::getLastError() const {
     return lastError_;
 }
+
+
+SQLiteDB::~SQLiteDB() {
+    close();
+}
