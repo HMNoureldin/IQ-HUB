@@ -1,6 +1,8 @@
-add_library(Logger
-    Logger/Logger.cpp
-)
+cmake_minimum_required(VERSION 3.14)
 
-target_include_directories(Logger PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/Logger)
+project(Common)
+
+# Add subdirectories for DataBase and Logger
+add_subdirectory(DataBase)
+add_subdirectory(Logger)
+
