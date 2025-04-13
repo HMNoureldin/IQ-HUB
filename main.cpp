@@ -3,6 +3,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <filesystem>
 #include <condition_variable>
 #include "Logger.hpp"
 #include "DataStore.hpp"
@@ -34,7 +35,11 @@ int main()
 
     LOG_INFO << "Starting KVPStorage App.." << std::endl;
 
-    std::string dbPath    = "IQ_HUB.db";
+    // Ensure data directory exists
+    std::filesystem::path dbDir = ".." / std::filesystem::path("data");
+    std::filesystem::create_directories(dbDir);
+    std::string dbPath = (dbDir / "IQ_HUB.db").string();
+
     std::string tableName = "kVP";
     DatabaseType dbType   = DatabaseType::SQLITE; 
 
