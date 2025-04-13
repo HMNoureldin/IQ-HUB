@@ -21,7 +21,7 @@ class SQLiteDB : public IDatabase
             bool open();
             void  close();
 
-            bool execute(const std::string& sql, std::string& result);
+            bool execute(const std::string& sql, std::string& result, Operation op);
             std::string getLastError() const;
 
             ~SQLiteDB();
