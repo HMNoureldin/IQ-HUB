@@ -13,7 +13,6 @@ enum class DatabaseType {
     NOSQL
 };
 
-
 const auto databaseTypeToString = [](DatabaseType type) -> std::string {
     switch (type) {
         case DatabaseType::SQLITE:

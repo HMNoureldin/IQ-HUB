@@ -2,15 +2,23 @@
 #include <csignal>
 #include <atomic>
 #include <thread>
+#include <mutex>
+#include <filesystem>
+#include <condition_variable>
 #include "Logger.hpp"
 #include "DataStore.hpp"
+#include "CLIHandler.hpp"
 
+std::mutex m;
+std::condition_variable cv;
 std::atomic<bool> running = true;
 
 
 static void catchExitSignals() {
     auto sigHandler = [](int){
+      std::lock_guard<std::mutex> guard(m);
       running = false;
+      cv.notify_all();
     };
   
     /* Catch signals SIGINT and SIGTERM */
@@ -27,50 +35,30 @@ int main()
 
     LOG_INFO << "Starting KVPStorage App.." << std::endl;
 
-    // // Example: User selects database type at runtime (can be via config or user input)
-    // DatabaseType dbType = DatabaseType::SQLITE;  // or DatabaseType::NOSQL
-    // std::string dbPath = "IQ_HUB.db";
-    // std::string tableName = "kVP";
+    // Ensure data directory exists
+    std::filesystem::path dbDir = ".." / std::filesystem::path("data");
+    std::filesystem::create_directories(dbDir);
+    std::string dbPath = (dbDir / "IQ_HUB.db").string();
 
-    // // Create and open the KVP store interface
-    // DataStore store(dbPath, tableName, dbType);
-    
-    // if (!store.open()) {
-    //   LOG_ERROR << "Failed to open database!" << std::endl;
-    //   return 1;
-    // }
+    std::string tableName = "kVP";
+    DatabaseType dbType   = DatabaseType::SQLITE; 
 
-    // // Set a key-value pair
-    // if (store.set("username", "Hesham")) {
-    //   LOG_INFO << "Set operation successful!" << std::endl;
-    // } else {
-    //   LOG_ERROR << "Set operation failed!" << std::endl;
-    // }
+    // Create and initialize the KV store
+    DataStore storeData(dbPath, tableName, dbType);
 
-    // // Get the value of a key
-    // std::string value;
-    // if (store.get("username", value)) {
-    //   LOG_INFO << "Got value: " << value << std::endl;
-    // } else {
-    //   LOG_ERROR << "Get operation failed!" << std::endl;
-    // }
+    // Create CLI Handler and run it
+    CLIHandler cli(storeData);
+    cli.start();
 
-    // // Delete a key-value pair
-    // if (store.del("username")) {
-    //   LOG_INFO << "Delete operation successful!" << std::endl;
-    // } else {
-    //   LOG_ERROR << "Delete operation failed!" << std::endl;
-    // }
-
-    // // Close the database
-    // store.close();
-
-    while (running) {
-        // Simulate some work or wait
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    {
+        std::unique_lock<std::mutex> guard(m);
+        cv.wait(guard, [] {
+            return !running;
+        });
     }
 
-    LOG_INFO << "KVPStorage App stopped" << std::endl;
+    cli.stop();  // Stop CLI handler after the signal
 
+    LOG_INFO << "KVPStorage App stopped" << std::endl;
     return 0;
 }

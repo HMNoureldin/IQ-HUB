@@ -25,12 +25,22 @@ void SQLiteDB::close() {
     }
 }
 
-bool SQLiteDB::execute(const std::string& sql, std::string& result) {
+bool SQLiteDB::execute(const std::string& sql, std::string& result, Operation op) {
     char* errMsg = nullptr;
     result.clear(); // Clear the result string before execution
 
     // If the SQL is a SELECT statement, collect the results.
     int rc = sqlite3_exec(db_, sql.c_str(), callback, &result, &errMsg);
+
+    if (op == Operation::GET){
+        std::size_t start = result.find(": ");
+        std::size_t end = result.find(" |");
+    
+        if (start != std::string::npos &&
+            end != std::string::npos && end > start + 2) {
+            result = result.substr(start + 2, end - (start + 2));
+        }
+    }
 
     if (rc != SQLITE_OK) {
         lastError_ = errMsg;

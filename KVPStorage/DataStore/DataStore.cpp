@@ -1,7 +1,10 @@
 #include "DataStore.hpp"
 
 
-DataStore::DataStore(const std::string& dbPath, const std::string& tableName , DatabaseType dbType)
+DataStore::DataStore(
+    const std::string& dbPath,
+    const std::string& tableName,
+    DatabaseType dbType)
     : dbPath_(dbPath), tableName_(tableName), dbType_(dbType) {}
 
 bool DataStore::open(){
@@ -24,19 +27,17 @@ bool DataStore::open(){
 
 void DataStore::close() {
     LOG_INFO << "Closing database connection" << std::endl;
-    
     if (db_) {
         db_->close();
     }
 }
 
 bool DataStore::createTableIfNotExists() {
-    std::string sql = \
-        "CREATE TABLE IF NOT EXISTS " + tableName_ + \
+    std::string sql = "CREATE TABLE IF NOT EXISTS " + tableName_ + \
         " (key TEXT, value TEXT NOT NULL);";
     std::string result;
     
-    bool isExecuted = db_->execute(sql, result);
+    bool isExecuted = db_->execute(sql, result, Operation::CREATE);
 
     if (!isExecuted) {
         LOG_ERROR << db_->getLastError() << std::endl;
@@ -46,15 +47,24 @@ bool DataStore::createTableIfNotExists() {
 }
 
 bool DataStore::set(const std::string& key, const std::string& value){
-    LOG_INFO << "Setting key: " << key 
-            << ", Value: " << value << std::endl;
     
-            std::string sql = \
-        "INSERT INTO " + tableName_ + " (key, value) VALUES ('" + \
+    LOG_INFO << "Setting key: " << key 
+             << ", Value: " << value << std::endl;
+
+    if (!open()) {
+      LOG_ERROR << "Failed to open database!" << std::endl;
+      return false;
+    }
+
+    std::string sql = "INSERT INTO " + tableName_ + \
+        " (key, value) VALUES ('" + \
         key + "', '" + value + "');";
+    
     std::string result;
 
-    bool isExecuted = db_->execute(sql, result);
+    bool isExecuted = db_->execute(sql, result, Operation::SET);
+
+    close();
 
     if (!isExecuted) {
         LOG_ERROR << db_->getLastError() << std::endl;
@@ -65,13 +75,19 @@ bool DataStore::set(const std::string& key, const std::string& value){
 
 bool DataStore::get(const std::string& key, std::string& value){
     LOG_INFO << "Getting value for key: " << key << std::endl;
+
+    if (!open()) {
+        LOG_ERROR << "Failed to open database!" << std::endl;
+        return false;
+    }
     
-    std::string sql = \
-        "SELECT value FROM " + tableName_ + \
+    std::string sql = "SELECT value FROM " + tableName_ + \
         " WHERE key = '" + key + "';";
     std::string result;
 
-    bool isExecuted = db_->execute(sql, result);
+    bool isExecuted = db_->execute(sql, result, Operation::GET);
+
+    close();
 
     if (isExecuted) {
         value = result;  // Assuming result contains the value
@@ -84,13 +100,19 @@ bool DataStore::get(const std::string& key, std::string& value){
 
 bool DataStore::del(const std::string& key){
     LOG_INFO << "Deleting key: " << key << std::endl;
+
+    if (!open()) {
+        LOG_ERROR << "Failed to open database!" << std::endl;
+        return false;
+    }
     
-    std::string sql = \
-        "DELETE FROM " + tableName_ + \
+    std::string sql = "DELETE FROM " + tableName_ + \
         " WHERE key = '" + key + "';";
     std::string result;
 
-    bool isExecuted = db_->execute(sql, result);
+    bool isExecuted = db_->execute(sql, result, Operation::DEL);
+
+    close();
 
     if (!isExecuted) {
         LOG_ERROR << db_->getLastError() << std::endl;

@@ -14,4 +14,4 @@ target_include_directories(DBFactory
 
 # Link DBFactory to SQLiteDB 
 # TODO: add NoSQLDB or other database types
-target_link_libraries(DBFactory PRIVATE SQLiteDB)
+target_link_libraries(DBFactory PRIVATE SQLiteDB NoSQLDB)
