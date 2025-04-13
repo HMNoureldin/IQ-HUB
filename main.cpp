@@ -2,7 +2,6 @@
 #include <csignal>
 #include <atomic>
 #include <thread>
-
 #include "Logger.hpp"
 #include "DataStore.hpp"
 
@@ -20,7 +19,7 @@ static void catchExitSignals() {
       LOG_ERROR << "Failed to set up signal handler for SIGINT or SIGTERM" << std::endl;
       exit(EXIT_FAILURE);
     }
-  }
+}
 
 int main()
 {

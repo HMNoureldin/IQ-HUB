@@ -1,7 +1,7 @@
-add_library(KVPStorage_LIB src/DataStore.cpp)
+cmake_minimum_required(VERSION 3.14)
 
-target_include_directories(KVPStorage_LIB PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+project(KVPStorage)
 
-target_link_libraries(KVPStorage_LIB PUBLIC DBFactory Logger)
+# Add subdirectories for CommHandlers
+add_subdirectory(CommHandlers)
+add_subdirectory(DataStore)

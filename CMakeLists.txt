@@ -13,5 +13,5 @@ add_executable(${PROJECT_NAME} main.cpp)
 add_subdirectory(${CMAKE_SOURCE_DIR}/common)
 add_subdirectory(${CMAKE_SOURCE_DIR}/KVPStorage)
 
-target_link_libraries(KVPStorageApp PRIVATE Logger DBFactory KVPStorage_LIB)
+target_link_libraries(KVPStorageApp PRIVATE Logger DBFactory DataStore CommHandlerFactory)
 
