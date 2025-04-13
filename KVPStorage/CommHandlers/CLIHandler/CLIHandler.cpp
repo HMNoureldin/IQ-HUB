@@ -53,7 +53,7 @@ void CLIHandler::run()
                 LOG_ERROR << "NOT FOUND" << std::endl;
             }
         } else {
-            std::cout << "Unknown command\n";
+            LOG_ERROR << "UNKNOWN COMMAND" << std::endl;
         }
     }
 

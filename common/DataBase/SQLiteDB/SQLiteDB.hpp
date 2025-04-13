@@ -18,15 +18,14 @@ class SQLiteDB : public IDatabase
     public:
             SQLiteDB(const std::string& dbPath);
 
-            bool open();
-            void  close();
-
-            bool execute(const std::string& sql, std::string& result, Operation op);
-            std::string getLastError() const;
+            bool open() override;
+            void  close() override;
+            bool execute(const std::string& sql, std::string& result, Operation op) override;
+            std::string getLastError() const override;
 
             ~SQLiteDB();
 
-        private:
+    private:
             static int callback(void* data, int argc, char** argv, char** azColName);
 };
 
