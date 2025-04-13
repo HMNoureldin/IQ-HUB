@@ -5,7 +5,8 @@
 
 class ICommHandler {
     public:
-        virtual void run(DataStore& store) = 0;
+        virtual void start() = 0;
+        virtual void stop()  = 0;
         virtual ~ICommHandler() = default;
 };
 
