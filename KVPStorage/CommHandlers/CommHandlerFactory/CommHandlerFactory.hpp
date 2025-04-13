@@ -37,7 +37,7 @@ const auto CommandHandlerTypeToString = [](CommHandlerType type) -> std::string 
 class CommHandlerFactory {
     public:
         static std::unique_ptr<ICommHandler> createCommHandler(
-            CommHandlerType CommType);
+            CommHandlerType CommType, DataStore& DataStore);
 };
 
 #endif //COMM_HANDLER_FACTORY_H
