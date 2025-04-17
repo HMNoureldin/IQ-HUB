@@ -3,7 +3,11 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
-#include <filesystem>
+#include <cerrno>
+#include <unistd.h>
+#include <cstring>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <condition_variable>
 #include "Logger.hpp"
 #include "DataStore.hpp"
@@ -12,6 +16,22 @@
 std::mutex m;
 std::condition_variable cv;
 std::atomic<bool> running = true;
+
+static bool createDirectoryIfNotExists(const std::string& path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0) {
+        // Directory does not exist; try to create it
+        if (mkdir(path.c_str(), 0755) != 0) {
+            LOG_ERROR << "Failed to create directory '" << path 
+                      << "': " << std::strerror(errno) << std::endl;
+            return false;
+        }
+    } else if (!S_ISDIR(st.st_mode)) {
+        LOG_INFO << "Path '" << path << "' exists but is not a directory!" << std::endl;
+        return false;
+    }
+    return true;
+}
 
 
 static void catchExitSignals() {
@@ -35,11 +55,15 @@ int main()
 
     LOG_INFO << "Starting KVPStorage App.." << std::endl;
 
-    // Ensure data directory exists
-    std::filesystem::path dbDir = ".." / std::filesystem::path("data");
-    std::filesystem::create_directories(dbDir);
-    std::string dbPath = (dbDir / "IQ_HUB.db").string();
+    std::string dbDir = "../data";
 
+    if (!createDirectoryIfNotExists(dbDir)) {
+        LOG_ERROR << "Unable to proceed without data directory." << std::endl;
+        return EXIT_FAILURE;
+    }
+    
+    std::string dbPath = dbDir + "/IQ_HUB.db";
+    
     std::string tableName = "kVP";
     DatabaseType dbType   = DatabaseType::SQLITE; 
 
